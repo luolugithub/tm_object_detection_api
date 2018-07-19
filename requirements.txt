@@ -1,0 +1,11 @@
+numpy
+tensorflow
+opencv-python
+matplotlib
+ipython
+jupyter
+Cython
+contextlib2
+pillow
+lxml
+jupyter
