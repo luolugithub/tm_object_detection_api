@@ -88,9 +88,11 @@ def get_configs_from_pipeline_file(pipeline_config_path):
       `train_input_config`, `eval_config`, `eval_input_config`. Value are the
       corresponding config objects.
   """
+  print('pipeline_config_path', pipeline_config_path)
   pipeline_config = pipeline_pb2.TrainEvalPipelineConfig()
   with tf.gfile.GFile(pipeline_config_path, "r") as f:
     proto_str = f.read()
+    # print('proto_str', proto_str)
     text_format.Merge(proto_str, pipeline_config)
   return create_configs_from_pipeline_proto(pipeline_config)
 
@@ -114,6 +116,12 @@ def create_configs_from_pipeline_proto(pipeline_config):
   configs["eval_input_config"] = pipeline_config.eval_input_reader
   if pipeline_config.HasField("graph_rewriter"):
     configs["graph_rewriter_config"] = pipeline_config.graph_rewriter
+
+  print('configs[model]', configs['model'])
+  print('configs[train_config]', configs['train_config'])
+  print('configs[train_input_config]', configs['train_input_config'])
+  print('configs[eval_config]', configs['eval_config'])
+  print('configs[eval_input_config]', configs['eval_input_config'])
 
   return configs
 

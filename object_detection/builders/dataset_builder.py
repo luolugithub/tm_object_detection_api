@@ -73,11 +73,13 @@ def read_dataset(file_read_func, input_files, config):
                        'still slightly shuffled since `num_readers` > 1.')
   filename_dataset = filename_dataset.repeat(config.num_epochs or None)
   records_dataset = filename_dataset.apply(
-      tf.contrib.data.parallel_interleave(
+      # tf.contrib.data.parallel_interleave(
+      tf.contrib.data.sloppy_interleave(
           file_read_func,
           cycle_length=num_readers,
           block_length=config.read_block_length,
-          sloppy=config.shuffle))
+          # sloppy=config.shuffle
+      ))
   if config.shuffle:
     records_dataset = records_dataset.shuffle(config.shuffle_buffer_size)
   return records_dataset

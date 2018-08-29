@@ -126,6 +126,7 @@ def unstack_batch(tensor_dict, unpad_groundtruth_tensors=True):
     ValueError: If unpad_tensors is True and `tensor_dict` does not contain
       `num_groundtruth_boxes` tensor.
   """
+  print('tensor_dict', tensor_dict)
   unbatched_tensor_dict = {key: tf.unstack(tensor)
                            for key, tensor in tensor_dict.items()}
   if unpad_groundtruth_tensors:
@@ -181,6 +182,7 @@ def create_model_fn(detection_model_fn, configs, hparams, use_tpu=False):
   Returns:
     `model_fn` for `Estimator`.
   """
+  # print('create_model_fn config', configs)
   train_config = configs['train_config']
   eval_input_config = configs['eval_input_config']
   eval_config = configs['eval_config']
@@ -199,6 +201,11 @@ def create_model_fn(detection_model_fn, configs, hparams, use_tpu=False):
       An `EstimatorSpec` that encapsulates the model and its serving
         configurations.
     """
+    print('features', features)
+    print('labels', labels)
+    print('mode', mode)
+    print('unbatched_unpadded_tensors', train_config.unpad_groundtruth_tensors)
+
     params = params or {}
     total_loss, train_op, detections, export_outputs = None, None, None, None
     is_training = mode == tf.estimator.ModeKeys.TRAIN
@@ -216,7 +223,8 @@ def create_model_fn(detection_model_fn, configs, hparams, use_tpu=False):
       boxes_shape = (
           labels[fields.InputDataFields.groundtruth_boxes].get_shape()
           .as_list())
-      unpad_groundtruth_tensors = True if boxes_shape[1] is not None else False
+      unpad_groundtruth_tensors = True if boxes_shape[1] is not None else False 
+      print('unpad_groundtruth_tensors', unpad_groundtruth_tensors)
       labels = unstack_batch(
           labels, unpad_groundtruth_tensors=unpad_groundtruth_tensors)
 
@@ -591,9 +599,11 @@ def create_train_and_eval_specs(train_input_fn,
 
   exporter = tf.estimator.FinalExporter(
       name=final_exporter_name, serving_input_receiver_fn=predict_input_fn)
+  print('exporter', exporter)
 
   train_spec = tf.estimator.TrainSpec(
       input_fn=train_input_fn, max_steps=train_steps)
+  print('train_spec', train_spec)
 
   eval_specs = [
       tf.estimator.EvalSpec(
@@ -602,6 +612,7 @@ def create_train_and_eval_specs(train_input_fn,
           steps=eval_steps,
           exporters=exporter)
   ]
+  print('eval_specs', eval_specs)
 
   if eval_on_train_data:
     eval_specs.append(
