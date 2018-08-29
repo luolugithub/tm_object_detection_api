@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<annotation>
+	<object>
+		<name>eggplant</name>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<size>
+			<width>224</width>
+			<height>224</height>
+			<depth>3</depth>
+		</size>
+		<bndbox>
+			<xmin>41</xmin>
+			<ymin>51</ymin>
+			<xmax>178</xmax>
+			<ymax>202</ymax>
+		</bndbox>
+	</object>
+</annotation>
+

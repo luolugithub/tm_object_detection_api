@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<annotation>
+	<object>
+		<name>greenpepper</name>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<size>
+			<width>224</width>
+			<height>224</height>
+			<depth>3</depth>
+		</size>
+		<bndbox>
+			<xmin>78</xmin>
+			<ymin>12</ymin>
+			<xmax>172</xmax>
+			<ymax>106</ymax>
+		</bndbox>
+	</object>
+</annotation>
+

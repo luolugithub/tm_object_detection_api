@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<annotation>
+	<object>
+		<name>poteto</name>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<size>
+			<width>224</width>
+			<height>224</height>
+			<depth>3</depth>
+		</size>
+		<bndbox>
+			<xmin>37</xmin>
+			<ymin>101</ymin>
+			<xmax>128</xmax>
+			<ymax>193</ymax>
+		</bndbox>
+	</object>
+</annotation>
+
