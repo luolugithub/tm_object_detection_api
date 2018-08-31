@@ -172,8 +172,13 @@ def draw_bounding_box_on_image(image,
              (right, top), (left, top)], width=thickness, fill=color)
   try:
     font = ImageFont.truetype('arial.ttf', 24)
+    # font = ImageFont.truetype(
+    #     'UbuntuMono-B.ttf',
+    #     24,
+    # )
   except IOError:
     font = ImageFont.load_default()
+
 
   # If the total height of the display strings added to the top of the bounding
   # box exceeds the top of the image, stack the strings below the bounding box
@@ -548,7 +553,7 @@ def visualize_boxes_and_labels_on_image_array(
     instance_boundaries=None,
     keypoints=None,
     use_normalized_coordinates=False,
-    max_boxes_to_draw=20,
+    max_boxes_to_draw=3,
     min_score_thresh=.5,
     agnostic_mode=False,
     line_thickness=4,

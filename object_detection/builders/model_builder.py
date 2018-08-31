@@ -93,6 +93,7 @@ def build(model_config, is_training, add_summaries=True,
   if not isinstance(model_config, model_pb2.DetectionModel):
     raise ValueError('model_config not of type model_pb2.DetectionModel.')
   meta_architecture = model_config.WhichOneof('model')
+  print('meta_architecture', meta_architecture)
   if meta_architecture == 'ssd':
     return _build_ssd_model(model_config.ssd, is_training, add_summaries,
                             add_background_class)
@@ -117,6 +118,7 @@ def _build_ssd_feature_extractor(feature_extractor_config, is_training,
   Raises:
     ValueError: On invalid feature extractor type.
   """
+  print('feature_extractor_config', feature_extractor_config)
   feature_type = feature_extractor_config.type
   depth_multiplier = feature_extractor_config.depth_multiplier
   min_depth = feature_extractor_config.min_depth
@@ -130,8 +132,9 @@ def _build_ssd_feature_extractor(feature_extractor_config, is_training,
 
   if feature_type not in SSD_FEATURE_EXTRACTOR_CLASS_MAP:
     raise ValueError('Unknown ssd feature_extractor: {}'.format(feature_type))
-
+  print('feature_type', feature_type)
   feature_extractor_class = SSD_FEATURE_EXTRACTOR_CLASS_MAP[feature_type]
+
   return feature_extractor_class(
       is_training, depth_multiplier, min_depth, pad_to_multiple,
       conv_hyperparams, reuse_weights, use_explicit_padding, use_depthwise,
@@ -159,31 +162,51 @@ def _build_ssd_model(ssd_config, is_training, add_summaries,
       model_class_map).
   """
   num_classes = ssd_config.num_classes
+  print('num_classes', num_classes)
 
   # Feature extractor
   feature_extractor = _build_ssd_feature_extractor(
       feature_extractor_config=ssd_config.feature_extractor,
       is_training=is_training)
+  print('feature_extractor', feature_extractor)
 
   box_coder = box_coder_builder.build(ssd_config.box_coder)
+  print('box_corder', box_coder)
   matcher = matcher_builder.build(ssd_config.matcher)
+  print('matcher', matcher)
   region_similarity_calculator = sim_calc.build(
       ssd_config.similarity_calculator)
+  print('region_similarity_calculator', region_similarity_calculator)
   encode_background_as_zeros = ssd_config.encode_background_as_zeros
+  print('encode_background_as_zeros', encode_background_as_zeros)
   negative_class_weight = ssd_config.negative_class_weight
+  print('negative_class_weight', negative_class_weight)
   ssd_box_predictor = box_predictor_builder.build(hyperparams_builder.build,
                                                   ssd_config.box_predictor,
                                                   is_training, num_classes)
+  print('ssd_box_predictor', ssd_box_predictor)
   anchor_generator = anchor_generator_builder.build(
       ssd_config.anchor_generator)
+  print('anchor_generator', anchor_generator)
+
   image_resizer_fn = image_resizer_builder.build(ssd_config.image_resizer)
+  print('image_resizer_fn', image_resizer_fn)
   non_max_suppression_fn, score_conversion_fn = post_processing_builder.build(
       ssd_config.post_processing)
+  print('non_max_suppression_fn', non_max_suppression_fn)
   (classification_loss, localization_loss, classification_weight,
    localization_weight, hard_example_miner,
    random_example_sampler) = losses_builder.build(ssd_config.loss)
+  print('classification_loss', classification_loss)
+  print('localization_loss', localization_loss)
+  print('classification_weight', classification_weight)
+  print('localization_weight', localization_weight)
+  print('hard_example_miner', hard_example_miner)
+
   normalize_loss_by_num_matches = ssd_config.normalize_loss_by_num_matches
   normalize_loc_loss_by_codesize = ssd_config.normalize_loc_loss_by_codesize
+  print('normalize_loss_by_num_matches', normalize_loss_by_num_matches)
+  print('normalize_loc_loss_by_codesize', normalize_loc_loss_by_codesize)
 
   return ssd_meta_arch.SSDMetaArch(
       is_training,
