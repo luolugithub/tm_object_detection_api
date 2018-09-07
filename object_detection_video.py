@@ -11,6 +11,9 @@ from object_detection.utils import visualization_utils as vis_util
 _PATH_TO_CKPT = './export/frozen_inference_graph.pb'
 _PATH_TO_LABELS = 'object_detection/data/ingradient_label_map.pbtxt'
 _NUM_CLASSES = 3
+# _PATH_TO_CKPT = './ssd_mobilenet_v1_coco_2017_11_17/frozen_inference_graph.pb'
+# _PATH_TO_LABELS = 'object_detection/data/mscoco_label_map.pbtxt'
+# _NUM_CLASSES = 90
 
 
 detection_graph = tf.Graph()
@@ -34,7 +37,7 @@ def main():
   width = 1920
   height = 1080
 
-  threshold = int(224 / 2) # default (224 / 2)
+  threshold = int(350 / 2) # default (224 / 2)
   margin = 10              # not to capture bounding box
 
   center_width = int(width / 2)
@@ -63,9 +66,9 @@ def main():
         # ROI
         bbox = frame[center_height-threshold:center_height+threshold,
                      center_width-threshold:center_width+threshold]
-        _bbox = cv2.resize(bbox,(224,224))
+        # _bbox = cv2.resize(bbox,(224,224))
       
-        _bbox = _bbox / 128 - 1 # normalization
+        _bbox = bbox / 256 - 1 # normalization
         _bbox = np.expand_dims(_bbox, 0)
 
         image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
@@ -85,7 +88,7 @@ def main():
             np.squeeze(scores),
             category_index,
             use_normalized_coordinates=True,
-            line_thickness=10
+            line_thickness=20
         )
         print(sys.stdout.write('classes : %s' %classes))
 

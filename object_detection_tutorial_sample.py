@@ -16,22 +16,32 @@ from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_util
 
 
-MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
+# MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
+# MODEL_FILE = MODEL_NAME + '.tar.gz'
+# DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
+# PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
+# PATH_TO_LABELS = os.path.join('object_detection/data', 'mscoco_label_map.pbtxt')
+# NUM_CLASSES = 90
+
+MODEL_NAME = 'export'
 MODEL_FILE = MODEL_NAME + '.tar.gz'
 DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
-PATH_TO_LABELS = os.path.join('object_detection/data', 'mscoco_label_map.pbtxt')
-NUM_CLASSES = 90
+PATH_TO_LABELS = os.path.join(
+    'object_detection/data', 'ingradient_label_map.pbtxt'
+)
+NUM_CLASSES = 3
 
-# download model
-opener = urllib.request.URLopener()
-opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
-tar_file = tarfile.open(MODEL_FILE)
-for file in tar_file.getmembers():
-    file_name = os.path.basename(file.name)
-    print('file_name', file_name)
-    if 'frozen_inference_graph.pb' in file_name:
-        tar_file.extract(file, os.getcwd())
+
+# # download model
+# opener = urllib.request.URLopener()
+# opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
+# tar_file = tarfile.open(MODEL_FILE)
+# for file in tar_file.getmembers():
+#     file_name = os.path.basename(file.name)
+#     print('file_name', file_name)
+#     if 'frozen_inference_graph.pb' in file_name:
+#         tar_file.extract(file, os.getcwd())
 
 # load a (frozen) tensorflow model into memory
 detection_graph = tf.Graph()
@@ -59,12 +69,21 @@ def load_image_into_numpy_array(image):
 
     return np.array(image.getdata()).reshape((im_height, im_width, 3)).astype(np.uint8)
 
-# detection
+#-----------#
+# detection #
+#-----------#
+# define test image file path 
 PATH_TO_TEST_IMAGES_DIR = 'object_detection/test_images'
-TEST_IMAGE_PATHS = [
-    os.path.join(PATH_TO_TEST_IMAGES_DIR, 'image{}.jpg'.format(i))
-                 for i in range(1, 3)
-]
+TEST_IMAGE_PATHS = []
+for root, dirs, files in os.walk(PATH_TO_TEST_IMAGES_DIR):
+    for f in files:
+        filepath = os.path.join(root, f)
+        if filepath.find('.jpg') >= 0 or filepath.find('.png') >= 0:
+            TEST_IMAGE_PATHS.append(filepath)
+        else:
+            print('{} is not jpg or png format file'.format(filepath))
+            pass
+
 IMAGE_SIZE = (12, 8)
 
 def run_inference_for_single_image(image, graph):
@@ -121,7 +140,9 @@ def run_inference_for_single_image(image, graph):
     return output_dict
                 
 
-for image_path in TEST_IMAGE_PATHS:
+for idx, image_path in enumerate(TEST_IMAGE_PATHS):
+    print('idx', idx)
+    print('test image', image_path)
     image = Image.open(image_path)
     image_np = load_image_into_numpy_array(image)
     image_np_expand = np.expand_dims(image_np, axis=0)

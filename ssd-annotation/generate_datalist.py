@@ -1,8 +1,8 @@
 import os
 
 
-image_dir = '/media/panasonic/644E9C944E9C611A/tmp/data/detection/20180829_valid/image'
-example_dir = '/media/panasonic/644E9C944E9C611A/tmp/data/detection/20180829_valid/example'
+image_dir = '/media/panasonic/644E9C944E9C611A/tmp/data/detection/20180907_6class/validation/image'
+example_dir = '/media/panasonic/644E9C944E9C611A/tmp/data/detection/20180907_6class/validation/example'
 if os.path.exists(example_dir) is False:
     os.mkdir(example_dir)
 
@@ -16,5 +16,3 @@ with open(example_txt, 'w') as w:
         print(name)
         w.write(name + ' ' + str(idx))
         w.write('\n')
-        
-    

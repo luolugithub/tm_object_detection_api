@@ -59,15 +59,12 @@ def main():
             3
         )
 
-        frame = cv2.resize(frame, (width, height))
-      
         # ROI
-        # bbox = frame[center_height-threshold:center_height+threshold,
-        #              center_width-threshold:center_width+threshold]
+        bbox = frame[center_height-threshold:center_height+threshold,
+                     center_width-threshold:center_width+threshold]
       
-        frame_ex = frame / 128 - 1 # normalization
-        # frame = cv2.resize(frame,(224,224))
-        frame_ex = np.expand_dims(frame_ex, 0)
+        _bbox = frame / 128 - 1 # normalization
+        _bbox = np.expand_dims(_bbox, 0)
 
         image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
         boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
@@ -77,10 +74,10 @@ def main():
 
         (boxes, scores, classes, num_detection) = sess.run(
             [boxes, scores, classes, num_detection],
-            feed_dict = {image_tensor: frame_ex},
+            feed_dict = {image_tensor: _bbox},
         )
         vis_util.visualize_boxes_and_labels_on_image_array(
-            frame,
+            bbox,
             np.squeeze(boxes),
             np.squeeze(classes).astype(np.int32),
             np.squeeze(scores),
