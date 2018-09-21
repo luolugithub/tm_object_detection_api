@@ -7,8 +7,8 @@ import xml.dom.minidom
 import numpy as np
 import cv2
 
-# data_dir = '/media/panasonic/644E9C944E9C611A/tmp/data/detection/ssd_food_dossari_20180903_cu_ep_tm_train_1000'
-# original_data_dir = '/media/panasonic/644E9C944E9C611A/tmp/data/img/food_dossari_20180815_cu_ep_tm_1000'
+# output_dir = '/media/panasonic/644E9C944E9C611A/tmp/data/detection/ssd_food_dossari_20180903_cu_ep_tm_train_1000'
+# original_dir = '/media/panasonic/644E9C944E9C611A/tmp/data/img/food_dossari_20180815_cu_ep_tm_1000'
 
 #-----------------------------------------#
 # image file data which want to parse xml #
@@ -154,23 +154,23 @@ def image_data_parse_to_xml(filename,
     return dom.toprettyxml()
 
 
-def main(data_dir, original_data_dir):
+def main(output_dir, original_dir):
     global img, break_flag
     
     # events = [i for i in dir(cv2) if 'EVENT' in i]
     # print(events)
     
-    if os.path.exists(data_dir) is False:
-        os.mkdir(data_dir)
-    image_dir = os.path.join(data_dir, 'image')
+    if os.path.exists(output_dir) is False:
+        os.mkdir(output_dir)
+    image_dir = os.path.join(output_dir, 'image')
     if os.path.exists(image_dir) is False:
         os.mkdir(image_dir)
-    annotation_dir = os.path.join(data_dir, 'annotation')
+    annotation_dir = os.path.join(output_dir, 'annotation')
     if os.path.exists(annotation_dir) is False:
         os.mkdir(annotation_dir)
     
     images = []
-    for root, dirs, files in os.walk(original_data_dir):
+    for root, dirs, files in os.walk(original_dir):
         targets = [os.path.join(root, f) for f in files]
         images.extend(targets)
     
@@ -233,16 +233,16 @@ def main(data_dir, original_data_dir):
         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_dir',
-                        dest='data_dir',
+    parser.add_argument('--output_dir',
+                        dest='output_dir',
                         type=str,
                         default=None,
                         help='please enter xml output path',)
-    parser.add_argument('--original_data_dir',
-                        dest='original_data_dir',
+    parser.add_argument('--original_dir',
+                        dest='original_dir',
                         type=str,
                         default=None,
                         help='please enter input image file path')
     argv = parser.parse_args()
 
-    main(argv.data_dir, argv.original_data_dir)
+    main(argv.output_dir, argv.original_dir)

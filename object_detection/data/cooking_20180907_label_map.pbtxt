@@ -1,0 +1,19 @@
+item {
+  id: 1
+  name: 'close'
+}
+
+item {
+  id: 2
+  name: 'flying-pan'
+}
+
+item {
+  id: 3
+  name: 'open'
+}
+
+item {
+  id: 4
+  name: 'gyoza'
+}

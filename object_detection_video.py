@@ -8,8 +8,8 @@ from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_util
 
 
-_PATH_TO_CKPT = './export/frozen_inference_graph.pb'
-_PATH_TO_LABELS = 'object_detection/data/ingradient_label_map.pbtxt'
+_PATH_TO_CKPT = 'export/export_20180913/frozen_inference_graph.pb'
+_PATH_TO_LABELS = 'object_detection/data/cooking_20180912_label_map.pbtxt'
 _NUM_CLASSES = 3
 # _PATH_TO_CKPT = './ssd_mobilenet_v1_coco_2017_11_17/frozen_inference_graph.pb'
 # _PATH_TO_LABELS = 'object_detection/data/mscoco_label_map.pbtxt'
@@ -37,7 +37,7 @@ def main():
   width = 1920
   height = 1080
 
-  threshold = int(350 / 2) # default (224 / 2)
+  threshold = int(400 / 2) # default (224 / 2)
   margin = 10              # not to capture bounding box
 
   center_width = int(width / 2)
@@ -51,7 +51,8 @@ def main():
       # camera propety(1920x1080)
       cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
       cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-      
+
+      count = 0
       while(True):
         ret, frame = cap.read()
         cv2.rectangle(
@@ -68,8 +69,8 @@ def main():
                      center_width-threshold:center_width+threshold]
         # _bbox = cv2.resize(bbox,(224,224))
       
-        _bbox = bbox / 256 - 1 # normalization
-        _bbox = np.expand_dims(_bbox, 0)
+        # _bbox = bbox / 128 - 1 # normalization
+        _bbox = np.expand_dims(bbox, 0)
 
         image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
         boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
@@ -77,20 +78,22 @@ def main():
         classes = detection_graph.get_tensor_by_name('detection_classes:0')
         num_detection = detection_graph.get_tensor_by_name('num_detections:0')
 
-        (boxes, scores, classes, num_detection) = sess.run(
-            [boxes, scores, classes, num_detection],
-            feed_dict = {image_tensor: _bbox},
-        )
-        vis_util.visualize_boxes_and_labels_on_image_array(
-            bbox,
-            np.squeeze(boxes),
-            np.squeeze(classes).astype(np.int32),
-            np.squeeze(scores),
-            category_index,
-            use_normalized_coordinates=True,
-            line_thickness=20
-        )
-        print(sys.stdout.write('classes : %s' %classes))
+        if count % 5 == 0:
+            (boxes, scores, classes, num_detection) = sess.run(
+                [boxes, scores, classes, num_detection],
+                feed_dict = {image_tensor: _bbox},
+            )
+            print(vis_util.visualize_boxes_and_labels_on_image_array(
+                bbox,
+                np.squeeze(boxes),
+                np.squeeze(classes).astype(np.int32),
+                np.squeeze(scores),
+                category_index,
+                use_normalized_coordinates=True,
+                line_thickness=20,
+                max_boxes_to_draw=20,
+            ))
+            print(sys.stdout.write('classes : %s' %classes))
 
         
         cv2.imshow('frame', frame)
@@ -104,11 +107,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-
-    
-
-
-        
-
-
-

@@ -23,12 +23,12 @@ from object_detection.utils import visualization_utils as vis_util
 # PATH_TO_LABELS = os.path.join('object_detection/data', 'mscoco_label_map.pbtxt')
 # NUM_CLASSES = 90
 
-MODEL_NAME = 'export'
+MODEL_NAME = 'export/export_20180913'
 MODEL_FILE = MODEL_NAME + '.tar.gz'
 DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
 PATH_TO_LABELS = os.path.join(
-    'object_detection/data', 'ingradient_label_map.pbtxt'
+    'object_detection/data', 'cooking_20180912_label_map.pbtxt'
 )
 NUM_CLASSES = 3
 
