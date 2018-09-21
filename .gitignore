@@ -1,2 +1,7 @@
 ssd_mobilenet_v1_coco_2017_11_17.tar.gz
 ssd_mobilenet_v1_coco_2017_11_17/
+object_detection/export/
+__pycache__/
+object_detection/models/
+object_detection/not_test_images/
+object_detection/test_images/
