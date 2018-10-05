@@ -1,3 +1,3 @@
 #!/bin/bash
 
-export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim
+export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/../slim

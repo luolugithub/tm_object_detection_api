@@ -68,7 +68,7 @@ def main():
         bbox = frame[center_height-threshold:center_height+threshold,
                      center_width-threshold:center_width+threshold]
         # _bbox = cv2.resize(bbox,(224,224))
-      
+        bbox = bbox[:,:,::-1] 
         # _bbox = bbox / 128 - 1 # normalization
         _bbox = np.expand_dims(bbox, 0)
 

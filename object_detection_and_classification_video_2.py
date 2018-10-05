@@ -238,6 +238,7 @@ def main():
       count = 0
       previous_predictions = []
       while(True):
+        t0 = time.time()
         ret, frame = cap.read()
         share_margin = int(margin/2) # settings not to eval rectangle color
         cv2.rectangle(
@@ -294,24 +295,24 @@ def main():
         classes = detection_graph.get_tensor_by_name('detection_classes:0')
         num_detection = detection_graph.get_tensor_by_name('num_detections:0')
 
-        if count % 33 == 0:
-            (boxes, scores, classes, num_detection) = sess.run(
-                [boxes, scores, classes, num_detection],
-                feed_dict = {image_tensor: _bbox},
-            )
-            vis_util.visualize_boxes_and_labels_on_image_array(
-                bbox1,
-                np.squeeze(boxes),
-                np.squeeze(classes).astype(np.int32),
-                np.squeeze(scores),
-                category_index,
-                use_normalized_coordinates=True,
-                line_thickness=20,
-                max_boxes_to_draw=20,
-            )
-            # print(sys.stdout.write('classes : %s' %classes))
+        # if count % 33 == 0:
+        (boxes, scores, classes, num_detection) = sess.run(
+            [boxes, scores, classes, num_detection],
+            feed_dict = {image_tensor: _bbox},
+        )
+        vis_util.visualize_boxes_and_labels_on_image_array(
+            bbox1,
+            np.squeeze(boxes),
+            np.squeeze(classes).astype(np.int32),
+            np.squeeze(scores),
+            category_index,
+            use_normalized_coordinates=True,
+            line_thickness=20,
+            max_boxes_to_draw=20,
+        )
+        # print(sys.stdout.write('classes : %s' %classes))
             
-        if count % 31 == 0:
+        if count % 5 == 0:
           thread = ClassficationThread(
               bbox2,
               bbox3,
@@ -326,6 +327,8 @@ def main():
           pass
         
         cv2.imshow('frame', frame)
+        t1 = time.time()
+        print('time :', t1 - t0)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

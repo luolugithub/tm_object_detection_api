@@ -1,0 +1,34 @@
+item {
+  id: 1
+  name: '01-flying-pan'
+}
+
+item {
+  id: 2
+  name: '02-flying-pan-gyoza'
+}
+
+item {
+  id: 3
+  name: '03-flying-pan-gyoza-starch'
+}
+
+item {
+  id: 4
+  name: '04-close'
+}
+
+item {
+  id: 5
+  name: '05-open'
+}
+
+item {
+  id: 6
+  name: '06-flying-pan-gyoza'
+}
+
+item {
+  id: 7
+  name: '07-dish-gyoza'
+}
