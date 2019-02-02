@@ -249,7 +249,11 @@ def main(output_dir, original_dir):
             ymax,
         )
         # output xml
-        generate_xml(filename, annotation_dir, parse_xml)
+        output_filename = os.path.join(
+            os.path.basename(os.path.dirname(image)),
+            os.path.basename(image),
+        )
+        generate_xml(output_filename, annotation_dir, parse_xml)
 
         count += 1
 
