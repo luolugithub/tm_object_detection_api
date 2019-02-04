@@ -1,0 +1,24 @@
+item {
+  id: 1
+  name: 'frying-pan'
+}
+
+item {
+  id: 2
+  name: 'cup'
+}
+
+item {
+  id: 3
+  name: 'gyoza'
+}
+
+item {
+  id: 4
+  name: 'lid'
+}
+
+item {
+  id: 5
+  name: 'hand'
+}

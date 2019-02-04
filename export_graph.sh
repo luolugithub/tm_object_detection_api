@@ -2,8 +2,8 @@
 
 INPUT_TYPE=image_tensor
 PIPLINE_CONFIG_PATH=ssd_mobilenet_v1_coco.config
-TRAINED_CKPT_PREFIX=/media/panasonic/644E9C944E9C611A/tmp/model/20180913_ssd_mobilenet_v1_gyoza_cookware/model.ckpt-200000
-EXPORT_DIR=export/export_20180914
+TRAINED_CKPT_PREFIX=/media/tsukudamayo/0CE698DCE698C6FC/tmp/model/20190204_ssd_mobilenet_v1_gyoza_cooking/model.ckpt-21247
+EXPORT_DIR=export/export_20190205_21247
 
 python export_inference_graph.py \
        --input_type=${INPUT_TYPE} \

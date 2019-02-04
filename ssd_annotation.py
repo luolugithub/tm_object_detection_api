@@ -192,6 +192,18 @@ def main(output_dir, original_dir):
     for image in images:
         global x1, x2, y1, y2
         x1, x2, y1, y2 = [], [], [], []
+
+        # if already exists xml file, pass this loop.
+        target_file_name = os.path.basename(image)
+        target_file_name, _ = os.path.splitext(target_file_name)
+        target_file_name = target_file_name + '.xml'
+        target_path = os.path.join(annotation_dir, target_file_name)
+        print(os.path.exists(target_path))
+        if os.path.exists(target_path) is True:
+            print(target_path)
+            count += 1
+            continue
+
         # class name = directory name
         # # if only one class in image
         # class_name = os.path.basename(os.path.dirname(image))
@@ -249,11 +261,11 @@ def main(output_dir, original_dir):
             ymax,
         )
         # output xml
-        output_filename = os.path.join(
-            os.path.basename(os.path.dirname(image)),
-            os.path.basename(image),
-        )
-        generate_xml(output_filename, annotation_dir, parse_xml)
+        # output_filename = os.path.join(
+        #     os.path.basename(os.path.dirname(image)),
+        #     os.path.basename(image),
+        # )
+        generate_xml(filename, annotation_dir, parse_xml)
 
         count += 1
 

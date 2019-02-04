@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-
 r"""Convert raw PASCAL dataset to TFRecord for object_detection.
 
 Example usage:
@@ -21,45 +20,45 @@ Example usage:
         --year=VOC2012 \
         --output_path=/home/user/pascal.record
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import hashlib
 import io
 import logging
 import os
 
-from lxml import etree
 import PIL.Image
+
 import tensorflow as tf
-
-from object_detection.utils import dataset_util
-from object_detection.utils import label_map_util
-
+from lxml import etree
+from object_detection.utils import dataset_util, label_map_util
 
 flags = tf.app.flags
-flags.DEFINE_string('data_dir', '', 'Root directory to raw PASCAL VOC dataset.')
+flags.DEFINE_string('data_dir', '',
+                    'Root directory to raw PASCAL VOC dataset.')
 flags.DEFINE_string('set', 'train', 'Convert training set, validation set or '
                     'merged set.')
 flags.DEFINE_string('annotations_dir', 'annotation',
                     '(Relative) path to annotations directory.')
 flags.DEFINE_string('output_path', '', 'Path to output TFRecord')
-flags.DEFINE_string('label_map_path',
-                    'object_detection/data/ingradient_label_map.pbtxt',
-                    'Path to label map proto')
+flags.DEFINE_string(
+    'label_map_path',
+    'object_detection/data/gyoza_20190203_00-04_label_map.pbtxt',
+    'Path to label map proto')
 flags.DEFINE_boolean('ignore_difficult_instances', True, 'Whether to ignore '
                      'difficult instances')
 FLAGS = flags.FLAGS
 
 
-def dict_to_tf_example(data,
-                       dataset_directory,
-                       label_map_dict,
-                       filename,
-                       ignore_difficult_instances=False,
-                       image_subdirectory='image',):
-  """Convert XML derived dict to tf.Example proto.
+def dict_to_tf_example(
+        data,
+        dataset_directory,
+        label_map_dict,
+        filename,
+        ignore_difficult_instances=False,
+        image_subdirectory='image',
+):
+    """Convert XML derived dict to tf.Example proto.
 
   Notice that this function normalizes the bounding box coordinates provided
   by the raw data.
@@ -80,107 +79,126 @@ def dict_to_tf_example(data,
   Raises:
     ValueError: if the image pointed to by data['filename'] is not a valid PNG
   """
-  # img_path = os.path.join(FLAGS.data_dir, image_subdirectory, data['filename'])
-  full_path = os.path.join(dataset_directory, 'image',  filename + '.png')
-  with tf.gfile.GFile(full_path, 'rb') as fid:
-    encoded_png = fid.read()
-  encoded_png_io = io.BytesIO(encoded_png)
-  image = PIL.Image.open(encoded_png_io)
-  if image.format != 'PNG':
-    raise ValueError('Image format not PNG')
-  key = hashlib.sha256(encoded_png).hexdigest()
+    # img_path = os.path.join(FLAGS.data_dir, image_subdirectory, data['filename'])
+    full_path = os.path.join(dataset_directory, 'image', filename + '.png')
+    with tf.gfile.GFile(full_path, 'rb') as fid:
+        encoded_png = fid.read()
+    encoded_png_io = io.BytesIO(encoded_png)
+    image = PIL.Image.open(encoded_png_io)
+    if image.format != 'PNG':
+        raise ValueError('Image format not PNG')
+    key = hashlib.sha256(encoded_png).hexdigest()
 
-  print('data', data)
-  print('data[object]', data['object'])
-  print('data[object] size', data['object'][0]['size'])
+    print('data', data)
+    print('data[object]', data['object'])
+    print('data[object] size', data['object'][0]['size'])
 
-  # print('index of size', data['object'].index('size'))
-  
-  width = int(data['object'][0]['size']['width'])
-  height = int(data['object'][0]['size']['height'])
+    # print('index of size', data['object'].index('size'))
 
-  xmin = []
-  ymin = []
-  xmax = []
-  ymax = []
-  classes = []
-  classes_text = []
-  truncated = []
-  # poses = []
-  difficult_obj = []
-  if 'object' in data:
-    for obj in data['object']:
-      difficult = bool(int(obj['difficult']))
-      if ignore_difficult_instances and difficult:
-        continue
+    width = int(data['object'][0]['size']['width'])
+    height = int(data['object'][0]['size']['height'])
 
-      difficult_obj.append(int(difficult))
+    xmin = []
+    ymin = []
+    xmax = []
+    ymax = []
+    classes = []
+    classes_text = []
+    truncated = []
+    # poses = []
+    difficult_obj = []
+    if 'object' in data:
+        for obj in data['object']:
+            difficult = bool(int(obj['difficult']))
+            if ignore_difficult_instances and difficult:
+                continue
 
-      xmin.append(float(obj['bndbox']['xmin']) / width)
-      ymin.append(float(obj['bndbox']['ymin']) / height)
-      xmax.append(float(obj['bndbox']['xmax']) / width)
-      ymax.append(float(obj['bndbox']['ymax']) / height)
-      classes_text.append(obj['name'].encode('utf8'))
-      classes.append(label_map_dict[obj['name']])
-      truncated.append(int(obj['truncated']))
-      # poses.append(obj['pose'].encode('utf8'))
+            difficult_obj.append(int(difficult))
 
-  example = tf.train.Example(features=tf.train.Features(feature={
-      'image/height': dataset_util.int64_feature(height),
-      'image/width': dataset_util.int64_feature(width),
-      'image/filename': dataset_util.bytes_feature(
-          str(filename+'.png').encode('utf8')),
-      'image/source_id': dataset_util.bytes_feature(
-          str(filename+'.png').encode('utf8')),
-      'image/key/sha256': dataset_util.bytes_feature(key.encode('utf8')),
-      'image/encoded': dataset_util.bytes_feature(encoded_png),
-      'image/format': dataset_util.bytes_feature('png'.encode('utf8')),
-      'image/object/bbox/xmin': dataset_util.float_list_feature(xmin),
-      'image/object/bbox/xmax': dataset_util.float_list_feature(xmax),
-      'image/object/bbox/ymin': dataset_util.float_list_feature(ymin),
-      'image/object/bbox/ymax': dataset_util.float_list_feature(ymax),
-      'image/object/class/text': dataset_util.bytes_list_feature(classes_text),
-      'image/object/class/label': dataset_util.int64_list_feature(classes),
-      'image/object/difficult': dataset_util.int64_list_feature(difficult_obj),
-      'image/object/truncated': dataset_util.int64_list_feature(truncated),
-      # 'image/object/view': dataset_util.bytes_list_feature(poses),
-  }))
-  return example
+            xmin.append(float(obj['bndbox']['xmin']) / width)
+            ymin.append(float(obj['bndbox']['ymin']) / height)
+            xmax.append(float(obj['bndbox']['xmax']) / width)
+            ymax.append(float(obj['bndbox']['ymax']) / height)
+            classes_text.append(obj['name'].encode('utf8'))
+            classes.append(label_map_dict[obj['name']])
+            truncated.append(int(obj['truncated']))
+            # poses.append(obj['pose'].encode('utf8'))
+
+    example = tf.train.Example(
+        features=tf.train.Features(
+            feature={
+                'image/height':
+                dataset_util.int64_feature(height),
+                'image/width':
+                dataset_util.int64_feature(width),
+                'image/filename':
+                dataset_util.bytes_feature(
+                    str(filename + '.png').encode('utf8')),
+                'image/source_id':
+                dataset_util.bytes_feature(
+                    str(filename + '.png').encode('utf8')),
+                'image/key/sha256':
+                dataset_util.bytes_feature(key.encode('utf8')),
+                'image/encoded':
+                dataset_util.bytes_feature(encoded_png),
+                'image/format':
+                dataset_util.bytes_feature('png'.encode('utf8')),
+                'image/object/bbox/xmin':
+                dataset_util.float_list_feature(xmin),
+                'image/object/bbox/xmax':
+                dataset_util.float_list_feature(xmax),
+                'image/object/bbox/ymin':
+                dataset_util.float_list_feature(ymin),
+                'image/object/bbox/ymax':
+                dataset_util.float_list_feature(ymax),
+                'image/object/class/text':
+                dataset_util.bytes_list_feature(classes_text),
+                'image/object/class/label':
+                dataset_util.int64_list_feature(classes),
+                'image/object/difficult':
+                dataset_util.int64_list_feature(difficult_obj),
+                'image/object/truncated':
+                dataset_util.int64_list_feature(truncated),
+                # 'image/object/view': dataset_util.bytes_list_feature(poses),
+            }))
+    return example
 
 
 def main(_):
-  data_dir = FLAGS.data_dir
+    data_dir = FLAGS.data_dir
 
-  output_dir = os.path.dirname(FLAGS.output_path)
-  if os.path.exists(output_dir) is False:
-      os.mkdir(output_dir)
-  writer = tf.python_io.TFRecordWriter(FLAGS.output_path)
+    output_dir = os.path.dirname(FLAGS.output_path)
+    if os.path.exists(output_dir) is False:
+        os.mkdir(output_dir)
+    writer = tf.python_io.TFRecordWriter(FLAGS.output_path)
 
-  label_map_dict = label_map_util.get_label_map_dict(FLAGS.label_map_path)
+    label_map_dict = label_map_util.get_label_map_dict(FLAGS.label_map_path)
 
-  logging.info('Reading dataset.')
-  examples_path = os.path.join(data_dir, 'example', 'ingradient_example.txt')
-  annotations_dir = os.path.join(data_dir, FLAGS.annotations_dir)
-  examples_list = dataset_util.read_examples_list(examples_path)
-  for idx, example in enumerate(examples_list):
-    print('example', example)
-    if idx % 100 == 0:
-      logging.info('On image %d of %d', idx, len(examples_list))
-    path = os.path.join(annotations_dir, example + '.xml')
-    with tf.gfile.GFile(path, 'r') as fid:
-      xml_str = fid.read()
-    xml = etree.fromstring(xml_str)
-    data = dataset_util.recursive_parse_xml_to_dict(xml)['annotation']
+    logging.info('Reading dataset.')
+    examples_path = os.path.join(data_dir, 'example', 'cooking_example.txt')
+    annotations_dir = os.path.join(data_dir, FLAGS.annotations_dir)
+    examples_list = dataset_util.read_examples_list(examples_path)
+    for idx, example in enumerate(examples_list):
+        print('example', example)
+        if idx % 100 == 0:
+            logging.info('On image %d of %d', idx, len(examples_list))
+        path = os.path.join(annotations_dir, example + '.xml')
+        with tf.gfile.GFile(path, 'r') as fid:
+            xml_str = fid.read()
+        xml = etree.fromstring(xml_str)
+        data = dataset_util.recursive_parse_xml_to_dict(xml)['annotation']
 
-    tf_example = dict_to_tf_example(data,
-                                    FLAGS.data_dir,
-                                    label_map_dict,
-                                    example,
-                                    FLAGS.ignore_difficult_instances,)
-    writer.write(tf_example.SerializeToString())
+        tf_example = dict_to_tf_example(
+            data,
+            FLAGS.data_dir,
+            label_map_dict,
+            example,
+            FLAGS.ignore_difficult_instances,
+        )
+        writer.write(tf_example.SerializeToString())
 
-  writer.close()
+    writer.close()
 
 
 if __name__ == '__main__':
-  tf.app.run()
+    tf.app.run()

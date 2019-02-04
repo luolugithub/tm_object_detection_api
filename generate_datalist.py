@@ -1,14 +1,14 @@
 import os
 
+image_dir = '/media/tsukudamayo/0CE698DCE698C6FC/tmp/data/dataset/gyoza_20190203_00-04/annotation/annotation/image/'
+example_dir = '/media/tsukudamayo/0CE698DCE698C6FC/tmp/data/dataset/gyoza_20190203_00-04/annotation/annotation/example'
 
-image_dir = '/media/panasonic/644E9C944E9C611A/tmp/data/detection/20181001_gyoza/image'
-example_dir = '/media/panasonic/644E9C944E9C611A/tmp/data/detection/20181001_gyoza/image/example'
 if os.path.exists(example_dir) is False:
     os.mkdir(example_dir)
 
 print(os.listdir(image_dir))
 
-example_txt = os.path.join(example_dir, 'ingradient_example.txt')
+example_txt = os.path.join(example_dir, 'cooking_example.txt')
 
 with open(example_txt, 'w') as w:
     for idx, f in enumerate(os.listdir(image_dir)):
