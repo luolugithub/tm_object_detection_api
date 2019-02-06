@@ -233,6 +233,7 @@ def main(output_dir, original_dir):
         print(str(count) + '/' + str(len(images)))
         while (True):
             cv2.imshow('image', img)
+            cv2.moveWindow('image', 100, 200)
             k = cv2.waitKey(1)
             if k == 27:
                 break
