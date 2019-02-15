@@ -15,7 +15,9 @@ def visualize_annotation(image_file, annotation_dir):
     xml_file = os.path.basename(image_file).replace('.png', '.xml')
     xml_file = os.path.join(annotation_dir, xml_file)
 
+    print('image_file')
     print(image_file)
+    print('xml_file')
     print(xml_file)
 
     tree = ET.ElementTree(file=xml_file)
@@ -47,7 +49,8 @@ def visualize_annotation(image_file, annotation_dir):
                 draw.rectangle(
                     ((int(pos[0]), int(pos[1])), (int(pos[2]), int(pos[3]))),
                     outline=(255,0,0))
-                img = img.resize((100,100))
+                # img = img.resize((100,100))
+                # img.save(str(image_file))
 
     return np.asarray(img)
 
@@ -90,7 +93,7 @@ def main(image_dir, annotation_dir, target_dir):
     # )
 
     image_array = []
-    for f in image_list:
+    for f in sorted(image_list):
         annotation_img = visualize_annotation(f, annotation_dir)
         image_array.append(annotation_img)
 
