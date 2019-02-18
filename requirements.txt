@@ -1,5 +1,5 @@
 numpy
-tensorflow-gpu
+tensorflow
 opencv-python
 matplotlib
 ipython

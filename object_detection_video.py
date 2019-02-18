@@ -70,6 +70,7 @@ def main(start_offset, video_file):
             for i in range(start_pos, number_of_frames):
                 cap.set(cv2.CAP_PROP_POS_FRAMES, i)
                 ret, frame = cap.read()
+                frame = cv2.resize(frame, dsize=(1920, 1080))
                 cv2.rectangle(frame, ((center_width - threshold - margin),
                                       (center_height - threshold - margin)),
                                      ((center_width + threshold + margin),

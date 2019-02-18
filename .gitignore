@@ -5,3 +5,4 @@ __pycache__/
 object_detection/models/
 object_detection/not_test_images/
 object_detection/test_images/
+log/
