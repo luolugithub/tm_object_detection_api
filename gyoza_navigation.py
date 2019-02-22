@@ -12,7 +12,7 @@ from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_util
 
 
-_PATH_TO_CKPT = 'export/export_20190213_157606/frozen_inference_graph.pb'
+_PATH_TO_CKPT = 'export/export_20190213_100762/frozen_inference_graph.pb'
 _PATH_TO_LABELS = 'object_detection/data/gyoza_20190208_label_map.pbtxt'
 _NUM_CLASSES = 7
 # _PATH_TO_CKPT = './ssd_mobilenet_v1_coco_2017_11_17/frozen_inference_graph.pb'
@@ -39,22 +39,22 @@ category_index = label_map_util.create_category_index(categories)
 
 
 state = {
-    0: 'フライパンを置いて油を引く',
-    1: '餃子を並べる',
-    2: '片栗粉を入れる',
-    3: '蓋を閉める',
-    4: '蒸し焼きにする',
-    5: '蓋を取る',
-    6: '水分を飛ばして完成',
+    0: 'frying-pan wo oite abura wo hiki masu',
+    1: 'gyoza wo narabe masu',
+    2: 'katakuriko wo ire masu',
+    3: 'futa wo shime masu',
+    4: 'mushiyaki ni shimasu',
+    5: 'futa wo tori masu',
+    6: 'suibun wo tobasite kansei desu',
 }
 
 distribution = {
-    0: (np.array([10,0,0,0,0,0,0]), np.array([0,5,0,0,0,0,5]), np.array([10,0,0,0,0,0,0])),
-    1: (np.array([10,0,0,0,0,0,0]), np.array([3,0,3,0,0,0,4]), np.array([0,0,10,0,0,0,0])),
-    2: (np.array([0,0,10,0,0,0,0]), np.array([3,2,2,0,0,0,3]), np.array([0,0,10,0,0,0,0])),
-    3: (np.array([0,0,10,0,0,0,0]), np.array([0,0,3,2,2,0,4]), np.array([0,0,0,0,10,0,0])),
-    4: (np.array([0,0,10,0,0,0,0]), np.array([0,0,10,0,0,0,0]), np.array([0,0,5,0,0,0,5])),
-    5: (np.array([0,0,5,0,0,0,5]), np.array([0,0,8,0,0,0,2]), np.array([0,0,10,0,0,0,0])),
+    0: (np.array([10,0,0,0,0,0,0]), np.array([0,0,8,0,0,0,2]), np.array([10,0,0,0,0,0,0])),
+    1: (np.array([10,0,0,0,0,0,0]), np.array([0,0,0,0,0,0,10]), np.array([10,0,0,0,0,0,0])),
+    2: (np.array([10,0,0,0,0,0,0]), np.array([0,10,0,0,0,0,0]), np.array([10,0,0,0,0,0,0])),
+    3: (np.array([10,0,0,0,0,0,0]), np.array([1,0,0,0,8,0,1]), np.array([0,0,0,0,10,0,0])),
+    4: (np.array([0,0,0,0,10,0,0]), np.array([9,0,0,0,1,0,0]), np.array([10,0,0,0,0,0,0])),
+    5: (np.array([10,0,0,0,0,0,0]), np.array([5,5,0,0,0,0,0]), np.array([10,0,0,0,0,0,0])),
     6: (np.array([0,0,10,0,0,0,0]), np.array([0,0,10,0,0,0,0]), np.array([0,0,10,0,0,0,0])),
 }
 
@@ -101,11 +101,20 @@ def main(start_offset, video_file):
     width = 1920
     height = 1080
 
+    # # 20180907
+    # threshold = int(400 / 2)  # default (224 / 2)
+    # margin = 10  # not to capture bounding box
+
+    # center_width = int(width / 2) - 300
+    # center_height = int(height / 2) + 150
+
+
+    # 20181012
     threshold = int(400 / 2)  # default (224 / 2)
     margin = 10  # not to capture bounding box
 
-    center_width = int(width / 2) - 300
-    center_height = int(height / 2) + 150
+    center_width = int(width / 2) - 550
+    center_height = int(height / 2) + 200
 
     # ----------------------------
     # gyoza navigation property
@@ -114,7 +123,7 @@ def main(start_offset, video_file):
     start_pos = 0
     end_pos = window_size
     kld_scores = []
-    change_state_threshold = 30
+    change_state_threshold = 3
     current_state_num = 0
     current_state = state[current_state_num]
     state_history = {}
@@ -122,8 +131,8 @@ def main(start_offset, video_file):
     distribution_num = 0
     current_distribution = distribution[current_state_num][distribution_num]
     first_state = {start_pos: current_state}
-
-    top_categories = deque([0,0,0,0,0,0,0,0,0,0])
+    
+    top_categories = deque([], maxlen=10)
 
     state_history.update(first_state)
     
@@ -146,6 +155,7 @@ def main(start_offset, video_file):
             print('fps', fps)
 
             count = 0
+            p, q = np.empty((0,10), int), np.empty((0,10), int)
             start_pos = fps * start_offset
             print('start_pos', start_pos)
 
@@ -186,16 +196,16 @@ def main(start_offset, video_file):
                     [boxes, scores, classes, num_detection],
                     feed_dict={image_tensor: _bbox},
                 )
-                vis_util.visualize_boxes_and_labels_on_image_array(
-                    bbox,
-                    np.squeeze(boxes),
-                    np.squeeze(classes).astype(np.int32),
-                    np.squeeze(scores),
-                    category_index,
-                    use_normalized_coordinates=True,
-                    line_thickness=20,
-                    max_boxes_to_draw=20,
-                )
+                # vis_util.visualize_boxes_and_labels_on_image_array(
+                #     bbox,
+                #     np.squeeze(boxes),
+                #     np.squeeze(classes).astype(np.int32),
+                #     np.squeeze(scores),
+                #     category_index,
+                #     use_normalized_coordinates=True,
+                #     line_thickness=20,
+                #     max_boxes_to_draw=20,
+                # )
 
                 # print('a number of class : {} {}'.format(classes.shape[0], classes.shape[1]))
                 # print('scores  : {}'.format(scores))
@@ -209,25 +219,31 @@ def main(start_offset, video_file):
                 # --------------------
                 # gyoza navigation
                 # --------------------
-                top_categories.append(classes[0])
+                top_categories.append(int(classes[0][0]))
                 
                 if i % 10 == 0:
+                    print('gyoza_navigation')
                     start_pos = i
                     end_pos = i + window_size
-                    if i == 0:
+                    if len(p) == 0 and len(q) == 0:
                         p = np.ones(7)
                         q = np.ones(7)
                     else:
                         q = array_to_histogram(top_categories)
                         kl = kl_divergence(p, q)
+                        print(p)
+                        print(q)
+                        print(kl)
                         kld_scores.append(kl)
                         p = q
-
-                        if kl > change_state_threshold:
+                        
+                        # if kl > change_state_threshold:
+                        print(scores[0][0])
+                        if kl != 0 and scores[0][0] > 0.3:
                             memo_distribution = {start_pos: (q, kl)}
                             threshold_over_points.update(memo_distribution)
                             if current_state == state[6]:
-                                pass
+                                continue
                             else:
                                 if distribution_num < 2:
                                     print('distribution_num', distribution_num)
@@ -246,13 +262,15 @@ def main(start_offset, video_file):
                                     continue
                                 current_kl = kl_divergence(q, current_distribution)
                                 next_kl = kl_divergence(q, next_distribution)
+                                print('================')
                                 print(start_pos)
-                                print('current_distribution', current_distribution)
-                                print('next_distribution', next_distribution)
+                                print('current', current_distribution)
+                                print('next', next_distribution)
                                 print('q', q)
                                 print('current kl', current_kl)
                                 print('next kl', next_kl)
-                                if current_kl >= next_kl:
+                                print('================')
+                                if current_kl > next_kl:
                                     previous_distribution_num = distribution_num
                                     distribution_num += 1
                                     print('################ distribution num change {} -> {} ################'.format(
@@ -261,10 +279,12 @@ def main(start_offset, video_file):
                                 else:
                                     pass
 
-                            
+
+                cv2.putText(frame, '{} {}'.format(current_state_num, current_state), (300, 300), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255,0,0), 3, cv2.LINE_AA)
                 cv2.imshow('frame', frame)
                 count += 1
                 print(count)
+                # print(current_state[current_state_num])
 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     # output log
