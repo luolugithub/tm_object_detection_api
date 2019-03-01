@@ -7,14 +7,19 @@ import scipy.stats as stats
 
 np.random.seed(0)
 training_data = pd.read_csv(
-    'log/20180925_141203_6_2.csv', index_col=0, header=None)
+    'model/data/20190219_125466/classes_20180925_141203/4_2.csv', index_col=0, header=None)
 print(training_data)
 
 training_data_2 = pd.read_csv(
-    'log/20180925_143754_6_2.csv', index_col=0, header=None)
+    'model/data/20190219_125466/classes_20180925_143754/4_2.csv', index_col=0, header=None)
 print(training_data_2)
 
+training_data_3 = pd.read_csv(
+    'model/data/20190219_125466/classes_20180928_112016/4_2.csv', index_col=0, header=None)    
+    
+
 training_data = pd.concat([training_data, training_data_2], axis=0)
+training_data = pd.concat([training_data, training_data_3], axis=0)
 print(training_data)
 
 count_dict = {}
@@ -96,5 +101,5 @@ model = np.array([
     pred_list[-1][5],
 ])
 
-with open('6_2.pkl', 'wb') as m:
+with open('model/4_2.pkl', 'wb') as m:
     pickle.dump(model, m)

@@ -11,28 +11,12 @@ import tensorflow as tf
 from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_util
 
-_PATH_TO_CKPT = 'export/20190219_125466/frozen_inference_graph.pb'
+_PATH_TO_CKPT = 'export/20190222_fix-lid_125833/frozen_inference_graph.pb'
 _PATH_TO_LABELS = 'object_detection/data/gyoza_20190219_label_map.pbtxt'
-_NUM_CLASSES = 6
+# _NUM_CLASSES = 6
 # _PATH_TO_CKPT = './ssd_mobilenet_v1_coco_2017_11_17/frozen_inference_graph.pb'
 # _PATH_TO_LABELS = 'object_detection/data/mscoco_label_map.pbtxt'
 # _NUM_CLASSES = 90
-
-detection_graph = tf.Graph()
-with detection_graph.as_default():
-    od_graph_def = tf.GraphDef()
-    with tf.gfile.GFile(_PATH_TO_CKPT, 'rb') as fid:
-        serialized_graph = fid.read()
-        od_graph_def.ParseFromString(serialized_graph)
-        print(od_graph_def.ParseFromString(serialized_graph))
-        tf.import_graph_def(od_graph_def, name='')
-
-label_map = label_map_util.load_labelmap(_PATH_TO_LABELS)
-categories = label_map_util.convert_label_map_to_categories(
-    label_map,
-    max_num_classes=_NUM_CLASSES,
-)
-category_index = label_map_util.create_category_index(categories)
 
 state = {
     0: 'frying-pan wo oite abura wo hiki masu',
@@ -44,42 +28,46 @@ state = {
     6: 'suibun wo tobasite kansei desu',
 }
 
-with open('model/1_1.pkl', 'rb') as m_1_1:
+with open('model/20190222_fix-lid_125833/1_1/1_1.pkl', 'rb') as m_1_1:
     model_1_1 = pickle.load(m_1_1)
-with open('model/1_2.pkl', 'rb') as m_1_2:
+with open('model/20190222_fix-lid_125833/1_2/1_2.pkl', 'rb') as m_1_2:
     model_1_2 = pickle.load(m_1_2)
-with open('model/2_1.pkl', 'rb') as m_2_1:
+with open('model/20190222_fix-lid_125833/2_1/2_1.pkl', 'rb') as m_2_1:
     model_2_1 = pickle.load(m_2_1)
-with open('model/2_2.pkl', 'rb') as m_2_2:
+with open('model/20190222_fix-lid_125833/2_2/2_2.pkl', 'rb') as m_2_2:
     model_2_2 = pickle.load(m_2_2)
-with open('model/3_1.pkl', 'rb') as m_3_1:
+with open('model/20190222_fix-lid_125833/3_1/3_1.pkl', 'rb') as m_3_1:
     model_3_1 = pickle.load(m_3_1)
-with open('model/3_2.pkl', 'rb') as m_3_2:
+with open('model/20190222_fix-lid_125833/3_2/3_2.pkl', 'rb') as m_3_2:
     model_3_2 = pickle.load(m_3_2)
-with open('model/4_1.pkl', 'rb') as m_4_1:
+with open('model/20190222_fix-lid_125833/4_1/4_1.pkl', 'rb') as m_4_1:
     model_4_1 = pickle.load(m_4_1)
-with open('model/4_2.pkl', 'rb') as m_4_2:
+with open('model/20190222_fix-lid_125833/4_2/4_2.pkl', 'rb') as m_4_2:
     model_4_2 = pickle.load(m_4_2)
-with open('model/6_1.pkl', 'rb') as m_6_1:
-    model_6_1 = pickle.load(m_6_1)
-with open('model/6_2.pkl', 'rb') as m_6_2:
-    model_6_2 = pickle.load(m_6_2)
+with open('model/20190222_fix-lid_125833/6/6.pkl', 'rb') as m_6:
+    model_6 = pickle.load(m_6)
 
 distribution = {
     0: (model_1_1, model_1_2, model_2_1),
     1: (model_2_1, model_2_2, model_3_1),
     2: (model_3_1, model_3_2, model_4_1),
-    3: (model_4_1, model_4_2, np.array([0, 0, 0, 10, 0, 0])),
-    4: (np.array([0, 0, 0, 10, 0, 0]), np.array([9, 0, 0, 1, 0, 0]),
-        np.array([10, 0, 0, 0, 0, 0])),
-    5: (np.array([10, 0, 0, 0, 0, 0]), np.array([5, 5, 0, 0, 0, 0]),
-        np.array([10, 0, 0, 0, 0, 0])),
-    6: (np.array([0, 0, 10, 0, 0, 0]), np.array([0, 0, 10, 0, 0, 0]),
-        np.array([0, 0, 10, 0, 0, 0])),
+    3: (model_4_1, model_4_2, np.array([0, 0, 0, 20, 0, 0])),
+    4: (np.array([0, 0, 0, 20, 0, 0]), np.array([19, 0, 0, 1, 0, 0]),
+        np.array([20, 0, 0, 0, 0, 0])),
+    5: (np.array([20, 0, 0, 0, 0, 0]), np.array([10, 10, 0, 0, 0, 0]),
+        np.array([0, 0, 20, 0, 0, 0])),
+    6: (np.array([0, 0, 20, 0, 0, 0]), np.array([0, 0, 20, 0, 0, 0]),
+        np.array([0, 0, 20, 0, 0, 0])),
 }
 
 
 def kl_divergence(p, q, dx=0.001):
+    print('q')
+    print(type(q))
+    print(p)
+    print('p')
+    print(type(p))
+    print(p)
     p = p + dx
     q = q + dx
     return np.sum(p * (np.log(p / q)))
@@ -96,20 +84,13 @@ def logging_histogram(df):
     return
 
 
-def array_to_histogram(array):
-    histogram = np.array([
-        array.count(1),
-        array.count(2),
-        array.count(3),
-        array.count(4),
-        array.count(5),
-        array.count(6),
-    ])
+def array_to_histogram(array, num_classes):
+    histogram = np.array([array.count(c+1) for c in range(num_classes)])
 
     return histogram / np.sum(histogram)
 
 
-def main(start_offset, video_file):
+def main(start_offset, video_file, num_classes):
 
     # -------------------------
     # video capture property
@@ -125,11 +106,18 @@ def main(start_offset, video_file):
     center_height = int(height / 2) + 200
 
     # # 20181012
-    # threshold = int(400 / 2)  # default (224 / 2)
+    # threshold = int(550 / 2)  # default (224 / 2)
     # margin = 10  # not to capture bounding box
 
-    # center_width = int(width / 2) - 550
-    # center_height = int(height / 2) + 200
+    # center_width = int(width / 2) - 650
+    # center_height = int(height / 2) + 250
+
+    # # apartment
+    # threshold = int(300 / 2)  # default (224 / 2)
+    # margin = 10  # not to capture bounding box
+
+    # center_width = int(width / 2)
+    # center_height = int(height / 2) + 50
 
     # ----------------------------
     # gyoza navigation property
@@ -145,11 +133,27 @@ def main(start_offset, video_file):
     threshold_over_points = {}
     distribution_num = 0
     current_distribution = distribution[current_state_num][distribution_num]
-    first_state = {start_pos: current_state}
+    first_state = {sart_pos: current_state}
 
-    top_categories = deque([], maxlen=10)
+    top_categories = deque([], maxlen=35)
 
     state_history.update(first_state)
+    
+    detection_graph = tf.Graph()
+    with detection_graph.as_default():
+        od_graph_def = tf.GraphDef()
+        with tf.gfile.GFile(_PATH_TO_CKPT, 'rb') as fid:
+            serialized_graph = fid.read()
+            od_graph_def.ParseFromString(serialized_graph)
+            print(od_graph_def.ParseFromString(serialized_graph))
+            tf.import_graph_def(od_graph_def, name='')
+    
+    label_map = label_map_util.load_labelmap(_PATH_TO_LABELS)
+    categories = label_map_util.convert_label_map_to_categories(
+        label_map,
+        max_num_classes=num_classes,
+    )
+    category_index = label_map_util.create_category_index(categories)    
 
     # ---------
     # Session
@@ -162,7 +166,7 @@ def main(start_offset, video_file):
             # camera propety(1920x1080)
             cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
             cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
-            cap.set(cv2.CAP_PROP_FPS, 30)
+            cap.set(cv2.CAP_PROP_FPS, 1)
 
             number_of_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             fps = int(cap.get(cv2.CAP_PROP_FPS))
@@ -170,7 +174,7 @@ def main(start_offset, video_file):
             print('fps', fps)
 
             count = 0
-            p, q = np.empty((0, 10), int), np.empty((0, 10), int)
+            p, q = np.empty((0, 35), float), np.empty((0, 35), float)
             start_pos = fps * start_offset
             print('start_pos', start_pos)
 
@@ -245,15 +249,15 @@ def main(start_offset, video_file):
                 # --------------------
                 top_categories.append(float(classes[0][0]))
 
-                if i % 10 == 0:
+                if i % 35 == 0:
                     print('gyoza_navigation')
                     start_pos = i
                     end_pos = i + window_size
                     if len(p) == 0 and len(q) == 0:
-                        p = np.ones(6)
-                        q = np.ones(6)
+                        p = np.ones(num_classes)
+                        q = np.ones(num_classes)
                     else:
-                        q = array_to_histogram(top_categories)
+                        q = array_to_histogram(top_categories, num_classes)
                         kl = kl_divergence(p, q)
                         print(p)
                         print(q)
@@ -355,5 +359,11 @@ if __name__ == '__main__':
         default=None,
         help='please enter a video file(filepath)'
         ' that you want to test movie')
+    parser.add_argument(
+        '--num_classes',
+        dest='num_classes',
+        type=int,
+        default=6,
+        help='please enter the number of classes')
     argv = parser.parse_args()
-    main(argv.start_offset, argv.video_file)
+    main(argv.start_offset, argv.video_file, argv.num_classes)
